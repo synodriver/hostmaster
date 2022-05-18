@@ -59,27 +59,34 @@ def get_ip(url: str) -> List[IP]:
     :return: ip对象
     """
     try:
-        header1["Referer"] = "https://site.ip138.com/" + url + "/"
-        header2["Referer"] = "https://site.ip138.com/" + url + "/"
+        header1["Referer"] = f"https://site.ip138.com/{url}/"
+        header2["Referer"] = f"https://site.ip138.com/{url}/"
         html = requests.get(site + url, headers=header1).json()
         ips = [i["ip"] for i in html["data"]]  # List[str]
 
         signs = [i["sign"] for i in html["data"]]  # List[str]
         # print(ips[0], '  ', signs[0])
         temp = zip(ips, signs)
-        addrs_text = [requests.get("https://api.ip138.com/query/?ip=" + i[0] + "&oid=5&mid=5&datatype=jsonp\
-        &sign=" + i[1], headers=header2).text for i in list(temp)]  # 本来应该是个字典 但是由于网站不配合 一下子 多了三行
+        addrs_text = [
+            requests.get(
+                f"https://api.ip138.com/query/?ip={i[0]}"
+                + "&oid=5&mid=5&datatype=jsonp\
+        &sign="
+                + i[1],
+                headers=header2,
+            ).text
+            for i in list(temp)
+        ]
+
         indexes = [(i.index("\t") + 1, i.index(" ")) for i in addrs_text]
         addrs = [i[0][i[1][0]:i[1][1]] for i in zip(addrs_text, indexes)]  # List[str]
 
-        IPs = [IP(i[0], i[1]) for i in zip(ips, addrs)]
-        return IPs
+        return [IP(i[0], i[1]) for i in zip(ips, addrs)]
     except KeyError as e:
         print(html)
         print(e.args)
         print("被网站限制了，去刷新")
         raise e
-        exit(1)
 
 """
 https://api.ip138.com/query/?ip=178.175.128.254&oid=5&mid=5&datatype=jsonp&sign=e3ea0a5719972c34500fa346c7326046

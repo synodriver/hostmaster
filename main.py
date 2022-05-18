@@ -35,13 +35,11 @@ def main() -> None:
     with open("model.txt", 'r') as f:
         model = f.read()
     words = model
-    websites = []  # List[Website]
-    for i in domains:
-        websites.append(Website(i, get_ip(i)))
+    websites = [Website(i, get_ip(i)) for i in domains]
     for i in websites:
-        print("正在检查%s可用的ip" % (i.url,))
+        print(f"正在检查{i.url}可用的ip")
         i.check_ip()
-        print("检查%s完成" % (i.url,))
+        print(f"检查{i.url}完成")
         words += str(i)
     update_host(words, host_path)
     print(words)
